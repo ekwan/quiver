@@ -21,7 +21,7 @@ replacements[6]=13                  # replace carbon atoms (atomic number 6) wit
 replacements[8]=17                  # replace oxygen atoms (atomic number 8) with oxygen-17s
 
 # calculate a special isotopologue if desired
-special = 1                         # set to 1 if you want to create a custom isotopologue
+special = 0                         # set to 1 if you want to create a custom isotopologue
 specialIsotopes[7]=2                # as an example, this would replace atoms 7 and 8 with deuteriums
 specialIsotopes[8]=2
 

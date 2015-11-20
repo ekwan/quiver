@@ -3,6 +3,10 @@
 #
 # usage: awk -f quiver_analysis.awk gs.q3 gs.qout ts.qout
 
+BEGIN {
+    print "\n=== QUIVER Analysis ===\n"
+}
+
 # reset variables at the beginning of the file
 FNR == 1 {
     fileCount++
