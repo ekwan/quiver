@@ -7,18 +7,20 @@ gives the KIEs, with and without standard tunnelling corrections.
 
 As a test case, I have provided the transition states for aliphatic Claisen rearrangement of
 allyl vinyl ether that was studied by Singleton in JACS 1999, 121, 10865.  These files are
-stored in the claisen_demo/ folder.  There are two files, one for the ground state (gs) and
+stored in the `claisen_demo/` folder.  There are two files, one for the ground state (gs) and
 one for the transition state (ts).  Both are calculated at B3LYP/6-31G(d).  I lifted the
 structures from the SI.  Conveniently, the carbons and oxygen atom are exactly as labeled in
-Table 4 of the paper.  The predicted values in the literature for single atom 12C/13C and
-16O/17O substitutions at 120 C are:
+Table 4 of the paper.  The predicted values in the literature for single atom <sup>12</sup>C/<sup>13</sup>C and
+<sup>16</sup>O/<sup>17</sup>O substitutions at 120 C are:
 
+```
 C1 1.012
 C2 0.999
 O3 1.017
 C4 1.029
 C5 1.000 (relative)
 C6 1.014
+```
 
 Note that this means that the predicted KIEs at all positions are divided by the predicted
 KIE at C5.  When I run my script, I get:
@@ -62,8 +64,8 @@ the directory containing the scripts.
 
 # Gaussian Instructions
 
-Using the #p directive to request verbose output, obtain frequencies for the ground
-and transition state of interest using the freq keyword.  (To calculate an equilibrium
+Using the `#p` directive to request verbose output, obtain frequencies for the ground
+and transition state of interest using the `freq` keyword.  (To calculate an equilibrium
 isotope effect, replace the transition state with the second ground state.)  The
 temperature you choose does not matter and will not be parsed from the file.
 
@@ -72,7 +74,7 @@ have the same atom numbering.  However, it should work if they are not the same.
 
 # Script Instructions
 
-Run the quiver.sh script:
+Run the `quiver.sh` script:
 
 `./quiver.sh claisen_gs.out claisen_ts.out`
 
@@ -82,14 +84,14 @@ The script wil abort if there is a problem (at least in theory).
 
 # Changing Program Behavior
 
-The following discussion references line numbers in quiver_prep.awk.
+The following discussion references line numbers in `quiver_prep.awk`.
 
 To change the scaling factor for the frequencies, alter line 12.
 
 To change the temperature, alter the temperature on line 13.
 
 To change the reference isotopologue, add the appropriate atom number on line 34.  To
-show raw KIEs only, set referenceIsotopologue to 0.
+show raw KIEs only, set `referenceIsotopologue` to `0`.
 
 By default, the program will replace any carbon-12 with carbon-13 and any oxygen-16
 with oxygen-17, one at a time.  Each isotopologue is then given a number 1, 2, 3, ...
@@ -101,7 +103,7 @@ weight data to line 37 for any unusual elements.
 The program can also calculate a
 "special isotopologue."  For example, if you wanted to replace several hydrogens with
 deuteriums, you can do so on line 24.  Set special to 1 to calculate a special isotopologue
-and indicate the replacements using the specialIsotopes array.  In the case of the Claisen,
+and indicate the replacements using the `specialIsotopes` array.  In the case of the Claisen,
 I have included an example where hydrogens 7 and 8 have been replaced with deuterium.  I
 predict an inverse KIE of 0.953 (uncorrected, but referenced to isotopologue 5).
 
@@ -109,10 +111,10 @@ predict an inverse KIE of 0.953 (uncorrected, but referenced to isotopologue 5).
 
 The scripts extract the last geometry, frequencies, Cartesian force constants, and some
 other information from the two g09 .out files for the ground and transition state.  The
-main Quiver input is dumped into gs.q1 and ts.q1.  The Cartesian force constants are
-placed in gs.q2 and ts.q2.  Descriptions of the isotopologues being calculated are
-placed in gs.q3 and ts.q3.  QUIVER does not use the q3 files.  The scripts I wrote use
-gs.q3 (and ignore ts.q3) to calculate the KIEs.
+main Quiver input is dumped into `gs.q1` and `ts.q1`.  The Cartesian force constants are
+placed in `gs.q2` and `ts.q2`.  Descriptions of the isotopologues being calculated are
+placed in `gs.q3` and `ts.q3`.  QUIVER does not use the q3 files.  The scripts I wrote use
+`gs.q3` (and ignore `ts.q3`) to calculate the KIEs.
 
 As much as possible, I designed the scripts to abort if any part of the parsing didn't
 work or got data that make no sense.
