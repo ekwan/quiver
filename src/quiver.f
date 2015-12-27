@@ -10,11 +10,12 @@ C       November 2015: modified to compile correctly with Singleton
 C                      modifications, Eugene Kwan
 C
         IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-        PARAMETER (MNA = 150)
+C       MNA is the maximum number of atoms
+C       If this is changed, change the format string on fortran line 92.
+        PARAMETER (MNA = 500)
         PARAMETER (MQ = 3*MNA)
-c       PARAMETER (MMOL = 6)
-c       PARAMETER (MMOL = 15)
-        PARAMETER (MMOL = 42)
+C       MMOL is the maximum number of isotopomers
+        PARAMETER (MMOL = 100)
         PARAMETER (MTEM = 8)
         PARAMETER (NNREL = 10)
         CHARACTER*80 FILE, FILE1, TITLE
@@ -143,7 +144,7 @@ c       type *, Xmem(I),Ymem(I),Zmem(I)
         endif
         read (10,92)(mwt(j),j=1,nat)
         write(6,92)(mwt(j),j=1,nat)
-92      format(150i6)
+92      format(500i6)
         IF (IPR.EQ.1) WRITE (20,96)
 96      format(/,'          Weights')
         do 95 i=1,nat

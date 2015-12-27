@@ -1,39 +1,13 @@
 # This program prepares input files for QUIVER.
 # Eugene Kwan, November 2015
 #
-# usage: awk -f quiver_prep.awk g09_gs_freq.out g09_ts_freq.out
+# usage: awk -f quiver_prep.awk quiver.config g09_gs_freq.out g09_ts_freq.out
 #
 # - frequency files should have #p freq specified
-# - control all other program behavior in the BEGIN section below
 
 BEGIN {
-
-# configure the behavior of QUIVER here
-scaling = 0.9614                    # scaling factor for frequencies, should be adjusted for whatever level of theory is being used
-temperature = 273+120               # in K
-
-# this program will ask QUIVER to calculate the KIEs the single-atom isotope replacements given below
-# for example, replacements[6]=13 would replace 12 C1/12 C2/12 C2 with three isotopomers,
-# 13 C1 / 12 C2 / 12 C3
-# 12 C1 / 13 C2 / 12 C3
-# 12 C1 / 12 C2 / 13 C3
-replacements[6]=13                  # replace carbon atoms (atomic number 6) with carbon-13s
-replacements[8]=17                  # replace oxygen atoms (atomic number 8) with oxygen-17s
-
-# calculate a special isotopologue if desired
-special = 0                         # set to 1 if you want to create a custom isotopologue
-specialIsotopes[7]=2                # as an example, this would replace atoms 7 and 8 with deuteriums
-specialIsotopes[8]=2
-
-# KIEs will be referenced to this isotopologue
-# 0 : do not reference KIEs
-# 1 : assume the KIE in the first isotopologue is 1.000, and divide all others by the predicted KIE there
-# ...and so forth
-# To figure out which isotopologue to use, run this first with referenceIsotopologue set to zero,
-# then look at the number of the isotopologue in the output.
-referenceIsotopologue = 5
-
 # store some data about atomic numbers and their standard weights
+# these weights will be used in the "unsubstituted" isotopomer
 atomicWeight[1]=1     ; atomicSymbol[1] ="H"     # hydrogen
 atomicWeight[6]=12    ; atomicSymbol[6] ="C"     # carbon
 atomicWeight[7]=14    ; atomicSymbol[7] ="N"     # nitrogen
@@ -43,26 +17,53 @@ atomicWeight[16]=32   ; atomicSymbol[16]="S"     # sulfur
 atomicWeight[17]=35   ; atomicSymbol[17]="Cl"    # chlorine
 atomicWeight[22]=48   ; atomicSymbol[22]="Ti"    # titanium
 atomicWeight[35]=80   ; atomicSymbol[35]="Br"    # bromine
+
+# default values, will be overriden by config file
+scaling = 1.00
+temperature = 273
+referenceIsotopomer = 0
 }
 
 ########## Read Data Files #########
 
 # this is the start of any file
-FNR == 1 {
+NR != FNR && FNR == 1 {
     fileCount++
     filenames[fileCount]=FILENAME
 }
 
-# read the title of each file
-/l101.exe/,/Symbolic Z-matrix/ {
-    if ( match($0,"------") > 0 && length(title[fileCount]) == 0 )
+# read the scaling factor
+NR == FNR {
+    fieldName = tolower($1)
+    if ( fieldName == "scaling" )
         {
-            getline
-            while ( match($0,"------") == 0 )
-                {
-                    title[fileCount] = title[fileCount] trim($0)
-                    getline
-                }
+            if ( NF != 2 )
+                abort("check config line (unexpected number of fields)\n" $0)
+            if ( $2 < 0.8 || $2 > 1.2 )
+                abort("check config line (unusual scaling factor)\n" $0)
+            scaling = $2
+        }
+    else if ( fieldName == "temperature" )
+        {
+            if ( NF != 2 )
+                abort("check config line (unexpected number of fields)\n" $0)
+            if ( $2 < 0 )
+                abort("check config line (negative temperature)\n" $0)
+            temperature = $2
+        }
+    else if ( fieldName == "isotopomer" )
+        {
+            if ( NF != 5 )
+                abort("check config line (unexpected number of fields)\n" $0)
+            if ( $2 < 1 || $3 < 1 || $4 < 1 || $5 < 1 )
+                abort("check config line (unexpected atom number):\n" $0)
+            if ( $2 < numberOfIsotopomers )
+                abort("check config line (non-sequential isotopomer number):\n" $0)
+            if ( numberOfIsotopomers == 0 && $2 != 1 )
+                abort("check config line (must start at isotopomer 1):\n" $0)
+            numberOfIsotopomers=$2
+            isotopomerLines++
+            isotopomerEntries[isotopomerLines]=$2 " " $3 " " $4 " " $5
         }
 }
 
@@ -93,28 +94,24 @@ FNR == 1 {
 # check the inputs carefully and calculate the KIEs
 END {
 
-# put in default titles if necessary
-if ( length(title[1]) == 0 )
-    title[1] = "ground state"
-if ( length(title[2]) == 0 )
-    title[2] = "transition state"
-printf "Read ground state file from %s (%s).\n", filenames[1], title[1]
-printf "Read transition state file from %s (%s).\n", filenames[2], title[2]
-
-# check geometries are present and consistent
-if ( numberOfAtoms[1] != numberOfAtoms[2] )
-    abort(sprintf("First structure has %d atoms, but second structure has %d atoms!\n", numberOfAtoms[1], numberOfAtoms[2]))
-if ( numberOfAtoms[1] == 0 || numberOfAtoms[2] == 0 ) abort("No geometry read for one of the structures.")
-for (i=1; i <= numberOfAtoms[1]; i++)
+# check atomic weights and symbols are available
+for (i=1; i <= 2; i++)
     {
-        if ( atomicNumbers[1,i] != atomicNumbers[2,i] )
-        {
-            print "Mismatch in atomic numbers between files!  Files must have the same atom ordering."
-            printf "Discrepancy for atom %d: atomic numbers are %d and %d\n", i, atomicNumbers[1,i], atomicNumbers[2,i]
-            exit 1
-        }
+        for (j=1; j <= numberOfAtoms[i]; j++)
+            {
+                thisAtomicNumber = atomicNumbers[i,j]
+                if (! thisAtomicNumber in atomicWeight)
+                    abort("no known atomic weight for Z=" thisAtomicNumber "!")
+                if (! thisAtomicNumber in atomicSymbol)
+                    abort("no known atomic symbol for Z=" thisAtomicNumber "!")
+            }
     }
-printf "%d atoms read successfully.\n", numberOfAtoms[1]
+
+# put in default titles if necessary
+title[1] = "ground state " filenames[1]
+title[2] = "transition state " filenames[2]
+printf "Read ground state file from %s (%d atoms).\n", filenames[1], numberOfAtoms[1]
+printf "Read transition state file from %s (%d atoms).\n", filenames[2], numberOfAtoms[2]
 
 # check imaginary frequencies
 printf "%d imaginary frequencies in ground state file.\n", numberOfImaginaries[1]
@@ -126,15 +123,45 @@ cartesianForceConstants[2] = getForceConstants(archive[2])
 printf "%d cartesian force constants read from ground state file.\n", newlines(cartesianForceConstants[1]) 
 printf "%d cartesian force constants read from transition state file.\n", newlines(cartesianForceConstants[2])
 
+# check isotopomers are sensible
+if (numberOfIsotopomers < 1)
+    abort("Must specify at least one isotopomer!")
+for (i=1; i <= isotopomerLines; i++)
+    {
+        split(isotopomerEntries[i],fields," ")
+        thisLine = "isotopomer " fields[1] " " fields[2] " " fields[3] " " fields[4]
+        
+        gsAtomNumber = fields[2]
+        tsAtomNumber = fields[3]
+        replacementWeight = fields[4]
+
+        # check the gs and ts atom numbers are in range for their respective geometries
+        if ( gsAtomNumber > numberOfAtoms[1] || gsAtomNumber < 1 )
+            abort("ground state atom number " gsAtomNumber " out of range for\n" thisLine)
+        if ( tsAtomNumber > numberOfAtoms[2] || tsAtomNumber < 1 )
+            abort("transition state atom number " tsAtomNumber " out of range for\n" thisLine)
+
+        # check that the gs and ts atom numbers correspond to the same atomic number
+        # that is, they might have different atom numbers, but they should both be replacing the same kind of atom
+        if ( atomicNumbers[1,gsAtomNumber] != atomicNumbers[2,tsAtomNumber] )
+            abort("atomic numbers do not match for this line:\n" thisLine)
+
+        # check that the replacement weight is reasonable
+        thisAtomicNumber = atomicNumbers[1,gsAtomNumber]
+        normalWeight = atomicWeight[thisAtomicNumber]
+        if ( replacementWeight > normalWeight + 5 || replacementWeight < normalWeight - 5 )
+            abort(sprintf("super light or heavy replacement %s --> %s on line:\n", normalWeight, replacementWeight, thisLine))
+    }
+printf "%d isotopomers read.\n", numberOfIsotopomers
+
 # print the output files
 printQuiverInput(1, "gs")
 printQuiverInput(2, "ts")
 
 # tell the user we are done
 print "QUIVER input decks placed in gs.q1 and ts.q1."
-print "Cartesian force constants placed in gs.q1 and ts.q1."
-print "QUIVER will need the q1 and q2 files renamed to temp.q1 and temp.q2 to run."
-print "Descriptions of all isotopomers written to gs.q3 and ts.q3, which are not needed by QUIVER."
+print "Cartesian force constants placed in gs.q2 and ts.q2."
+print "Summary data placed in gs.q3 and ts.q3."
 print "\n*** QUIVER files written successfully! ***"
 }
 
@@ -157,7 +184,6 @@ function newlines(s) {
 }
 
 ########## Parser Functions #########
-
 # extracts the cartesian force constants from a string
 function getForceConstants(archiveString) {
     numberOfFields = split(archiveString, fields, "\\")
@@ -188,28 +214,22 @@ function printQuiverInput(fileIndex, prefix) {
     printf "" > outputFilename
     printf "title: %s\n", title[fileIndex] >> outputFilename
 
-    # this is the number of isotopologues that will be computed
-    # note that this includes the unsubstituted isotopologue
-    numberOfReplacements = 0
-    for (i=1; i <= numberOfAtoms[fileIndex]; i++)
-        if (atomicNumbers[fileIndex,i] in replacements)
-            numberOfReplacements++
-    if ( ! (special == 0 || special == 1) ) abort("check value of special in BEGIN block")
-    numberOfIsotopologues = 1 + numberOfReplacements + special
-    print "  " numberOfIsotopologues >> outputFilename
+    # write the number of isotopomers that will be computed by quiver
+    # note that this includes the unsubstituted isotopomer
+    print "  " (numberOfIsotopomers+1) >> outputFilename
 
-    # print the geometry
+    # print the number of atoms
     print "parent" >> outputFilename
     print "  " numberOfAtoms[fileIndex] >> outputFilename
+    
+    # print the geometry
     for (i=1; i <= numberOfAtoms[fileIndex]; i++)
         printf "   %12.6f%12.6f%12.6f\n", x_coordinates[fileIndex,i], y_coordinates[fileIndex,i], z_coordinates[fileIndex,i] >> outputFilename
 
-    # print the standard isotopologue
+    # print the standard isotopomer
     for (i=1; i <= numberOfAtoms[fileIndex]; i++)
         {
             thisAtomicNumber = atomicNumbers[fileIndex,i]
-            if ( ! thisAtomicNumber in atomicWeight )
-                abort(sprintf("unrecognized atomic number %d!\n", thisAtomicNumber))
             printf atomicWeight[thisAtomicNumber] >> outputFilename
             if ( i < numberOfAtoms[fileIndex] )
                 printf "," >> outputFilename
@@ -218,84 +238,80 @@ function printQuiverInput(fileIndex, prefix) {
 
     # print the scaling factor and temperature
     print scaling >> outputFilename
-    print "   1" >> outputFilename
+    print "   1" >> outputFilename       # number of temperatures is always 1
     print temperature >> outputFilename
 
-    # print the isotopologues for the standard replacements (e.g., 12C with 13C, one at a time)
-    replacementCount = 0
-    for (i=1; i <= numberOfAtoms[fileIndex]; i++)
+    # loop over each replacement isotopomer
+    delete descriptions
+    for (i=1; i <= numberOfIsotopomers; i++)
         {
-            replaced = 0
-            isotopologueString1 = ""
-            isotopologueString2 = ""
+            # grab all replacements for this isotopomer
+            delete replacement
+            for (j=1; j <= isotopomerLines; j++)
+                {
+                    split(isotopomerEntries[j],fields," ")
+                    if ( fields[1] == i )
+                        {
+                            if ( fileIndex == 1 )
+                                fromAtomNumber = fields[2]
+                            else if ( fileIndex == 2 )
+                                fromAtomNumber = fields[3]
+                            else
+                                abort("impossible")
+
+                            if ( fromAtomNumber in replacement )
+                                abort("duplicate replacement for isotopomer\n" isotopomerEntries[j])
+                            targetWeight = fields[4]
+                            replacement[fromAtomNumber] = targetWeight
+                        }
+                }
+
+            # create a description
+            description = "isotopomer " i " -"
+            for (j in replacement)
+                {
+                    thisAtomicNumber = atomicNumbers[fileIndex,j]
+                    thisAtomicSymbol = atomicSymbol[thisAtomicNumber]
+                    description = description sprintf(" %d%s @ atom %d,", replacement[j], thisAtomicSymbol, j)
+                }
+            description = substr(description, 1, length(description)-1)
+
+            # write out description
+            print description >> outputFilename
+            descriptions[i] = description
+
+            # enumerate the atomic weights
             for (j=1; j <= numberOfAtoms[fileIndex]; j++)
                 {
                     thisAtomicNumber = atomicNumbers[fileIndex,j]
-                    if ( i==j && thisAtomicNumber in replacements )
-                        {
-                            # this is a replacement
-                            isotopologueString1 = sprintf("%d%s @ atom %d", replacements[thisAtomicNumber],atomicSymbol[thisAtomicNumber],j)
-                            isotopologueString2 = isotopologueString2 replacements[thisAtomicNumber]
-                            replaced = 1
-                        }
+                    regularWeight = atomicWeight[thisAtomicNumber]
+                    if ( j in replacement)
+                        printf replacement[j] >> outputFilename
                     else
-                        isotopologueString2 = isotopologueString2 atomicWeight[thisAtomicNumber]
+                        printf regularWeight >> outputFilename
                     if ( j < numberOfAtoms[fileIndex] )
-                        isotopologueString2 = isotopologueString2 ","
+                        printf "," >> outputFilename 
                 }
-            if ( replaced == 1 )
-                {
-                    replacementCount++
-                    # this is the name of the isotopomer, can be anything
-                    descriptions[replacementCount] = isotopologueString1
-                    printf "%d - %s\n", replacementCount, isotopologueString1 >> outputFilename
-                    print isotopologueString2 >> outputFilename
-                }
-        }
-
-    # print the special isotopologue if requested
-    if ( special == 1 ) 
-        {
-            # check the input is sensible
-            for ( i in specialIsotopes )
-                if ( i+0 < 1 || i+0 > numberOfAtoms[fileIndex]+0 )
-                    abort(sprintf("special isotope atom number of of range: %d (allowed range 1-%d)", i, numberOfAtoms[fileIndex]))
-            # make the special isotopologue
-            isotopologueString1 = "special"
-            isotopologueString2 = ""
-            for (i=1; i <= numberOfAtoms[fileIndex]; i++)
-                {
-                    thisAtomicNumber = atomicNumbers[fileIndex,i]
-                    if ( i in specialIsotopes )
-                        isotopologueString2 = isotopologueString2 specialIsotopes[i]
-                    else
-                        isotopologueString2 = isotopologueString2 atomicWeight[thisAtomicNumber]
-                    if ( i < numberOfAtoms[fileIndex] )
-                        isotopologueString2 = isotopologueString2 ","
-                }
-            print isotopologueString1 >> outputFilename
-            print isotopologueString2 >> outputFilename
+            printf "\n" >> outputFilename
         }
 
     # print the summary of changes
-    printf " %d\n", numberOfReplacements+special >> outputFilename
-    for (i=1; i <= numberOfReplacements+special; i++)
+    printf " %d\n", numberOfIsotopomers >> outputFilename
+    for (i=1; i <= numberOfIsotopomers; i++)
         printf "   1  %d\n", i+1 >> outputFilename
 
     # print the cartesian force constants
     outputFilename = prefix ".q2"
     print cartesianForceConstants[fileIndex] > outputFilename
 
-    # check reference isotopologue
-    if ( referenceIsotopologue < 0 || referenceIsotopologue > numberOfReplacements + special )
+    # ensure the reference isotopomer is in range
+    if ( referenceIsotopomer < 0 || referenceIsotopomer > numberOfIsotopomers )
         abort("check reference isotopologue")
 
     # print a list of all the descriptions of what each isotopologue is
     outputFilename = prefix ".q3"
     print temperature > outputFilename
-    print referenceIsotopologue >> outputFilename
-    for (i=1; i <= replacementCount; i++)
+    print referenceIsotopomer >> outputFilename
+    for (i=1; i <= numberOfIsotopomers; i++)
         print descriptions[i] >> outputFilename
-    if ( special == 1 )
-        print "special" >> outputFilename
 }

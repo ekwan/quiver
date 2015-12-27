@@ -69,9 +69,6 @@ and transition state of interest using the `freq` keyword.  (To calculate an equ
 isotope effect, replace the transition state with the second ground state.)  The
 temperature you choose does not matter and will not be parsed from the file.
 
-I have only tested this in the case where the starting material and transition states
-have the same atom numbering.  However, it should work if they are not the same.
-
 # Script Instructions
 
 Run the `quiver.sh` script:
@@ -95,17 +92,18 @@ show raw KIEs only, set `referenceIsotopologue` to `0`.
 
 By default, the program will replace any carbon-12 with carbon-13 and any oxygen-16
 with oxygen-17, one at a time.  Each isotopologue is then given a number 1, 2, 3, ...
-This facilitates the calculation of KIEs for natural
-abundance KIE experiments.  See line 15 for an explanation.  To request any other
-standard replacements of this type, alter line 20.  It might be necessary to add atomic
-weight data to line 37 for any unusual elements.
+This facilitates the calculation of KIEs for natural abundance KIE experiments.  See
+line 15 for an explanation.  To request any other standard replacements of this type,
+alter line 20.  It might be necessary to add atomic weight data to line 37 for any
+unusual elements.  Additionally, it might be necessary to add the weights to the
+src/quiver.f file and recompile.
 
-The program can also calculate a
-"special isotopologue."  For example, if you wanted to replace several hydrogens with
-deuteriums, you can do so on line 24.  Set special to 1 to calculate a special isotopologue
-and indicate the replacements using the `specialIsotopes` array.  In the case of the Claisen,
-I have included an example where hydrogens 7 and 8 have been replaced with deuterium.  I
-predict an inverse KIE of 0.953 (uncorrected, but referenced to isotopologue 5).
+The program can also calculate a "special isotopologue."  For example, if you wanted to
+replace several hydrogens with deuteriums, you can do so on line 24.  Set special to 1
+to calculate a special isotopologue and indicate the replacements using the
+`specialIsotopes` array.  In the case of the Claisen, I have included an example where
+hydrogens 7 and 8 have been replaced with deuterium.  I predict an inverse KIE of 0.953
+(uncorrected, but referenced to isotopologue 5).
 
 # Technical Details
 
@@ -139,6 +137,14 @@ Bigeleisen-Mayer theory: J. Chem. Phys.  1947, 15, 261.; Wolfsberg, M.  Acc. Che
 QUIVER: Saunders, M.; Laidig, K.E. Wolfsberg, M.  JACS 1989 111 8989.
 Scaling Factors: Wong.  Chem. Phys. Lett. 1996, 256, 391-399.  Radom.  J Phys. Chem. 1996, 100, 16502.
 Tunnelling Corrections: Bell.  Chem. Soc. Rev.  1974, 3, 513.
+
+# Notes
+
+This program has been fixed to deal with up to 500 atoms and 100 isotopomers.  If there are further
+issues, check the MNA and MMOL parameters in the quiver.f, as well as the input format string on line 92.
+
+Please note that the atom numbers in the starting material and product do not need to be aligned, since
+this calculates the reduced isotopic partition functions for the starting material and product separately.
 
 # Acknowledgements
 
