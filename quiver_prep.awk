@@ -65,6 +65,14 @@ NR == FNR {
             isotopomerLines++
             isotopomerEntries[isotopomerLines]=$2 " " $3 " " $4 " " $5
         }
+    else if ( fieldName == "reference_isotopomer" )
+        {
+            if ( NF != 2 )
+                abort("check config line (unexpected number of fields)\n" $0)
+            if ( $2 < 0 )
+                abort("negative reference isotopomer not allowed")
+            referenceIsotopomer = $2
+        }
 }
 
 # read the last geometry of each file

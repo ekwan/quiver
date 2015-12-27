@@ -56,9 +56,10 @@ END {
     u_unsubstituted = -1.43877 * frequencies[1] / temperature
     u_unsubstituted_temp = u_unsubstituted / sin(u_unsubstituted*0.5)
     temp1 = 1 + u_unsubstituted*u_unsubstituted/24
+    print "\nNote: isotopomer descriptions refer to ground state atom numbers."
     printf "\n"
-    print "isotopologue description    uncorrected      Widmer     infinite parabola"
-    print "                                KIE           KIE              KIE"
+    print "isotopologue description                                  uncorrected      Widmer     infinite parabola"
+    print "                                                              KIE           KIE              KIE"
     for (i=1; i <= numberOfIsotopologues; i++)
         {
             S2overS1 = partitionFunctions[2,i]/partitionFunctions[3,i]
@@ -87,13 +88,13 @@ END {
     referenceIsotopologue == 0 ? referenceKIE[2] = 1.000 : referenceKIE[2] = KIE[referenceIsotopologue,2]
     referenceIsotopologue == 0 ? referenceKIE[3] = 1.000 : referenceKIE[3] = KIE[referenceIsotopologue,3]
     if ( referenceIsotopologue > 0 )
-        printf "%30-s %5.3f         %5.3f            %5.3f\n", "reference KIEs", referenceKIE[1], referenceKIE[3], referenceKIE[2]
+        printf "%60-s %5.3f         %5.3f            %5.3f\n", "reference KIEs", referenceKIE[1], referenceKIE[3], referenceKIE[2]
     for (i=1; i <= numberOfIsotopologues; i++)
         {
             # print result
             rawKIE = KIE[i,1] / referenceKIE[1]
             widmerKIE = KIE[i,3] / referenceKIE[3]
             infiniteParabolaKIE = KIE[i,2] / referenceKIE[2]
-            printf "%30-s %5.3f         %5.3f            %5.3f\n", descriptions[i], rawKIE, widmerKIE, infiniteParabolaKIE
+            printf "%60-s %5.3f         %5.3f            %5.3f\n", descriptions[i], rawKIE, widmerKIE, infiniteParabolaKIE
         }
 }
