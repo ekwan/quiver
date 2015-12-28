@@ -1,0 +1,49 @@
+STOP  END OF QUIVER ANALYSIS 
+title: ground state claisen_gs.out                                              
+    12    12    16    12    12    12     1     1     1     1     1     1     1     1
+ SCALING FACTOR FOR FREQUENCIES  0.961400
+ SCALING FACTOR FOR FORCE CONSTANT MATRIX  0.924290
+ TEMPERATURE                      393.0000
+ FREQUENCY OF        67.80426 1/CM 
+ FREQUENCY OF       159.72136 1/CM 
+ FREQUENCY OF       179.53755 1/CM 
+ FREQUENCY OF       246.57493 1/CM 
+ FREQUENCY OF       276.53177 1/CM 
+ FREQUENCY OF       534.06341 1/CM 
+ FREQUENCY OF       551.52154 1/CM 
+ FREQUENCY OF       596.07521 1/CM 
+ FREQUENCY OF       689.67922 1/CM 
+ FREQUENCY OF       793.45047 1/CM 
+ FREQUENCY OF       898.46551 1/CM 
+ FREQUENCY OF       911.71946 1/CM 
+ FREQUENCY OF       918.97971 1/CM 
+ FREQUENCY OF       958.86690 1/CM 
+ FREQUENCY OF       992.27423 1/CM 
+ FREQUENCY OF      1000.38004 1/CM 
+ FREQUENCY OF      1018.20524 1/CM 
+ FREQUENCY OF      1081.08192 1/CM 
+ FREQUENCY OF      1208.21370 1/CM 
+ FREQUENCY OF      1223.22861 1/CM 
+ FREQUENCY OF      1283.16602 1/CM 
+ FREQUENCY OF      1320.55859 1/CM 
+ FREQUENCY OF      1373.71308 1/CM 
+ FREQUENCY OF      1411.03540 1/CM 
+ FREQUENCY OF      1413.53864 1/CM 
+ FREQUENCY OF      1471.92005 1/CM 
+ FREQUENCY OF      1647.11681 1/CM 
+ FREQUENCY OF      1676.75520 1/CM 
+ FREQUENCY OF      2874.47957 1/CM 
+ FREQUENCY OF      2897.10711 1/CM 
+ FREQUENCY OF      3038.47888 1/CM 
+ FREQUENCY OF      3059.16263 1/CM 
+ FREQUENCY OF      3072.45796 1/CM 
+ FREQUENCY OF      3086.53657 1/CM 
+ FREQUENCY OF      3138.52308 1/CM 
+ FREQUENCY OF      3152.55807 1/CM 
+    13    12    16    12    12    12     1     1     1     1     1     1     1     1
+    12    13    16    12    12    12     1     1     1     1     1     1     1     1
+    12    12    17    12    12    12     1     1     1     1     1     1     1     1
+    12    12    16    13    12    12     1     1     1     1     1     1     1     1
+    12    12    16    12    13    12     1     1     1     1     1     1     1     1
+    12    12    16    12    12    13     1     1     1     1     1     1     1     1
+    12    12    16    12    12    12     2     2     1     1     1     1     1     1
