@@ -53,6 +53,9 @@ KIEs are referenced to isotopologue number 5.
 
 Note: isotopomer descriptions refer to ground state atom numbers.
 
+This is a kinetic isotope effect calculation.  Tunnelling corrections have been applied,
+but may not be accurate for H/D/T KIEs.
+
 isotopologue description                                  uncorrected      Widmer     infinite parabola
                                                               KIE           KIE              KIE
 reference KIEs                                               1.002         1.002            1.002
@@ -87,7 +90,6 @@ Singleton *JACS*  **2009**, *131*, 2397.
 * Tighter convergence criteria can sometimes improve accuracy by reducing the size of
 the smallest six translational/rotational frequencies.
 * To calculate an equilibrium isotope effect, replace the transition state with the second ground state.
-Also, please see the instructions below for how to change the analysis program.
 * The temperature you choose does not matter and will not be parsed from the file.
 
 # Detailed Notes
@@ -111,9 +113,11 @@ functions for each state.
 for KIEs.  The formula for the raw KIE is (imaginary_frequency<sub>light</sub> /
 imaginary_frequency<sub>heavy</sub> x ( *f*(gs,heavy/gs,light) / *f*(ts,heavy/gs,light) ).
 The imaginary frequency is just defined as the lowest (actual non-translational/non-vibrational)
-vibrational frequency.  The first term drops out for an EIE, so the analysis script would have
-to be modified to do that.  QUIVER ignores any negative frequencies, so large structures that
-have small unconverged imgainary frequencies from numerical imprecision should work.
+vibrational frequency.  The analysis program just uses the imaginary frequency with the
+largest magnitude for this ratio.  QUIVER ignores any negative frequencies, so large structures that
+have small unconverged imgainary frequencies from numerical imprecision should work.  If there
+are no negative frequencies, the analysis script will automatically perform an EIE calculation.
+Note that the tunnelling corrections are not applicable in that case.
 
   *f* is a reduced isotopic partition function, which is marked as "(S2/S1)F" in
 the QUIVER output.  gs and ts refer to the ground and transition states, respectively.
