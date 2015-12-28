@@ -57,7 +57,7 @@ NR == FNR {
                 abort("check config line (unexpected number of fields)\n" $0)
             if ( $2 < 1 || $3 < 1 || $4 < 1 || $5 < 1 )
                 abort("check config line (unexpected atom number):\n" $0)
-            if ( $2 < numberOfIsotopomers )
+            if ( $2 < numberOfIsotopomers || $2 > numberOfIsotopomers + 1 )
                 abort("check config line (non-sequential isotopomer number):\n" $0)
             if ( numberOfIsotopomers == 0 && $2 != 1 )
                 abort("check config line (must start at isotopomer 1):\n" $0)
@@ -126,6 +126,7 @@ printf "%d imaginary frequencies in ground state file.\n", numberOfImaginaries[1
 printf "%d imaginary frequencies in transition state file.\n", numberOfImaginaries[2]
 
 # parse the cartesian force constants
+print "Reading force constants..."
 cartesianForceConstants[1] = getForceConstants(archive[1])
 cartesianForceConstants[2] = getForceConstants(archive[2])
 printf "%d cartesian force constants read from ground state file.\n", newlines(cartesianForceConstants[1]) 
@@ -158,7 +159,7 @@ for (i=1; i <= isotopomerLines; i++)
         thisAtomicNumber = atomicNumbers[1,gsAtomNumber]
         normalWeight = atomicWeight[thisAtomicNumber]
         if ( replacementWeight > normalWeight + 5 || replacementWeight < normalWeight - 5 )
-            abort(sprintf("super light or heavy replacement %s --> %s on line:\n", normalWeight, replacementWeight, thisLine))
+            abort(sprintf("super light or heavy replacement %s --> %s on line:\n%s", normalWeight, replacementWeight, thisLine))
     }
 printf "%d isotopomers read.\n", numberOfIsotopomers
 

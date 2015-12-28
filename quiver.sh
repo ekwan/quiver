@@ -5,27 +5,31 @@
 # cleans up the directory afterwards.
 #
 # usage:
-# ./quiver.sh gs.out ts.out
+# ./quiver.sh quiver.config gs.out ts.out
 
 # check command line arguments
-if [ "$#" -ne 2 ]; then
-    echo "usage: ./quiver.sh gs.out ts.out"
+if [ "$#" -ne 3 ]; then
+    echo "usage: ./quiver.sh quiver.config gs.out ts.out"
     exit 1
 fi
 if [ ! -f $1 ]; then
-    echo "Could not find ground state file "$1"!"
+    echo "Could not find configuration file "$1"!"
     exit 1
 fi
 if [ ! -f $2 ]; then
-    echo "Could not find transition state file "$2"!"
+    echo "Could not find ground state file "$2"!"
+    exit 1
+fi
+if [ ! -f $3 ]; then
+    echo "Could not find transition state file "$3"!"
     exit 1
 fi
 
 # pre cleanup
-rm -f *.q1 *.q2 *.q3 *.qout \ *
+rm -f *.q1 *.q2 *.q3 *.qout \ * *.console
 
 # prepare QUIVER input files
-awk -f quiver_prep.awk quiver.config $1 $2
+awk -f quiver_prep.awk $1 $2 $3
 if [ $? -ne 0 ]; then
     echo "Something went wrong when preparing the input files."
     exit 1
@@ -35,6 +39,7 @@ fi
 cp gs.q1 temp.q1
 cp gs.q2 temp.q2
 rm -f temp.qout
+echo "Running QUIVER on the ground state..."
 ./quiver.exe &> gs.console
 if [ $? -ne 0 ]; then
     echo "Something went wrong when running QUIVER on the ground state."
@@ -46,6 +51,7 @@ cp temp.qout gs.qout
 cp ts.q1 temp.q1
 cp ts.q2 temp.q2
 rm -f temp.qout
+echo "Running QUIVER on the transition state..."
 ./quiver.exe &> ts.console
 if [ $? -ne 0 ]; then
     echo "Something went wrong when running QUIVER on the ground state."
