@@ -95,6 +95,9 @@ END {
             rawKIE = KIE[i,1] / referenceKIE[1]
             widmerKIE = KIE[i,3] / referenceKIE[3]
             infiniteParabolaKIE = KIE[i,2] / referenceKIE[2]
-            printf "%60-s %5.3f         %5.3f            %5.3f\n", descriptions[i], rawKIE, widmerKIE, infiniteParabolaKIE
+            if ( i != referenceIsotopologue )
+                printf "%60-s %5.3f         %5.3f            %5.3f\n", descriptions[i], rawKIE, widmerKIE, infiniteParabolaKIE
+            else
+                printf "%60-s %5.3f         %5.3f            %5.3f\n", "[" descriptions[i] "] (referenced to 1.00)", rawKIE, widmerKIE, infiniteParabolaKIE
         }
 }
