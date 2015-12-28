@@ -167,27 +167,27 @@ issues, check the MNA and MMOL parameters in the quiver.f, as well as the input 
 this calculates the reduced isotopic partition functions for the starting material and product separately.
 The reasoning is as follows.  Suppose we have two reactions:
 
-A<sub>1</sub> + B --> A<sub>1</sub>B<sup>TS</sup>
+  A<sub>1</sub> + B --> A<sub>1</sub>B<sup>TS</sup>
 
-A<sub>2</sub> + B --> A<sub>2</sub>B<sup>TS</sup>
+  A<sub>2</sub> + B --> A<sub>2</sub>B<sup>TS</sup>
 
-where 1 = light and 2 = heavy.
+  where 1 = light and 2 = heavy.
 
-From transition state theory, the KIE for this reaction is K<sub>1</sub><sup>TS</sup>/K<sub>2</sub><sup>TS</sup>.
-From statistical mechanics, the equilibrium constant is given by the ratio of the partition functions:
+  From transition state theory, the KIE for this reaction is K<sub>1</sub><sup>TS</sup>/K<sub>2</sub><sup>TS</sup>.
+  From statistical mechanics, the equilibrium constant is given by the ratio of the partition functions:
 
-KIE = Q(A<sub>2</sub>)/Q(A<sub>1</sub>) x Q(B)/Q(B) x Q(A<sub>2</sub>B<sup>TS</sup>)/Q(A<sub>1</sub>B<sup>TS</sup>)
+  KIE = Q(A<sub>2</sub>)/Q(A<sub>1</sub>) x Q(B)/Q(B) x Q(A<sub>2</sub>B<sup>TS</sup>)/Q(A<sub>1</sub>B<sup>TS</sup>)
 
-Of course, the Q(B)/Q(B) term drops out.  QUIVER is run two batches, once to calculate the first ratio for each
-isotopomer, and again to calculate the third ratio for each isotopomer.  In brief, each partition function is
-assumed to be separable into translational, rotational, and vibrational components.  The Redlich-Teller rule is
-then used to construct a reduced partition function that is only terms of the component frequencies.  Each function
-is a product over each non-negative frequencies.  In the case of calculating a KIE, the ratio of the imaginary
-frequencies in the transition vectory is also required (multiplicatively).
+  Of course, the Q(B)/Q(B) term drops out.  QUIVER is run two batches, once to calculate the first ratio for each
+  isotopomer, and again to calculate the third ratio for each isotopomer.  In brief, each partition function is
+  assumed to be separable into translational, rotational, and vibrational components.  The Redlich-Teller rule is
+  then used to construct a reduced partition function that is only terms of the component frequencies.  Each function
+  is a product over each non-negative frequencies.  In the case of calculating a KIE, the ratio of the imaginary
+  frequencies in the transition vectory is also required (multiplicatively).
 
-However, each isotope replacement must correspond to the same atom in the starting material and product.
-These atoms don't have to have the same number, but if you replace a hydrogen in one molecule and a carbon
-in the other, then the results will be gibberish.  This is checked in the `quiver_prep.awk` script.
+  However, each isotope replacement must correspond to the same atom in the starting material and product.
+  These atoms don't have to have the same number, but if you replace a hydrogen in one molecule and a carbon
+  in the other, then the results will be gibberish.  This is checked in the `quiver_prep.awk` script.
 
 3. If you are using any unusual atoms or isotopes, check the `quiver.f` and `quiver_prep.awk` files to
 see if the necessary weights and symbols are present.
