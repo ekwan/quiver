@@ -92,33 +92,48 @@ END {
             for (i=1; i <= numberOfIsotopologues; i++)
                 {
                     rawKIE = partitionFunctions[2,i]/partitionFunctions[3,i]
-            
-                    # store uncorrected KIEs
                     KIE[i,1]=rawKIE
-                    KIE[i,2]=rawKIE
-                    KIE[i,3]=rawKIE
                 }
         }
     
     printf "\n"
-    print "isotopologue description                                  uncorrected      Widmer     infinite parabola"
-    print "                                                              KIE           KIE              KIE"
-    
+   
     referenceIsotopologue == 0 ? referenceKIE[1] = 1.000 : referenceKIE[1] = KIE[referenceIsotopologue,1]
     referenceIsotopologue == 0 ? referenceKIE[2] = 1.000 : referenceKIE[2] = KIE[referenceIsotopologue,2]
     referenceIsotopologue == 0 ? referenceKIE[3] = 1.000 : referenceKIE[3] = KIE[referenceIsotopologue,3]
     
-    if ( referenceIsotopologue > 0 )
-        printf "%60-s %5.3f         %5.3f            %5.3f\n", "reference KIEs", referenceKIE[1], referenceKIE[3], referenceKIE[2]
-    for (i=1; i <= numberOfIsotopologues; i++)
+    if ( frequencyCount > 0 )
         {
-            # print result
-            rawKIE = KIE[i,1] / referenceKIE[1]
-            widmerKIE = KIE[i,3] / referenceKIE[3]
-            infiniteParabolaKIE = KIE[i,2] / referenceKIE[2]
-            if ( i != referenceIsotopologue )
-                printf "%60-s %5.3f         %5.3f            %5.3f\n", descriptions[i], rawKIE, widmerKIE, infiniteParabolaKIE
-            else
-                printf "%60-s %5.3f         %5.3f            %5.3f\n", "[" descriptions[i] "] (referenced to 1.00)", rawKIE, widmerKIE, infiniteParabolaKIE
+            print "isotopologue description                                  uncorrected      Widmer     infinite parabola"
+            print "                                                              KIE           KIE              KIE"
+             if ( referenceIsotopologue > 0 )
+                printf "%60-s %5.3f         %5.3f            %5.3f\n", "reference KIEs", referenceKIE[1], referenceKIE[3], referenceKIE[2]
+            for (i=1; i <= numberOfIsotopologues; i++)
+                {
+                    # print result
+                    rawKIE = KIE[i,1] / referenceKIE[1]
+                    widmerKIE = KIE[i,3] / referenceKIE[3]
+                    infiniteParabolaKIE = KIE[i,2] / referenceKIE[2]
+                    if ( i != referenceIsotopologue )
+                        printf "%60-s %5.3f         %5.3f            %5.3f\n", descriptions[i], rawKIE, widmerKIE, infiniteParabolaKIE
+                    else
+                        print"[" descriptions[i] "] (referenced to 1.00)"
+                }
+        }
+    else
+        {
+            print "isotopologue description                                  uncorrected"
+            print "                                                              EIE"
+             if ( referenceIsotopologue > 0 )
+                printf "%60-s %5.3f\n", "reference KIEs", referenceKIE[1]
+            for (i=1; i <= numberOfIsotopologues; i++)
+                {
+                    # print result
+                    rawKIE = KIE[i,1] / referenceKIE[1]
+                    if ( i != referenceIsotopologue )
+                        printf "%60-s %5.3f\n", descriptions[i], rawKIE
+                    else
+                        print "[" descriptions[i] "] (referenced to 1.00)"
+                }
         }
 }
