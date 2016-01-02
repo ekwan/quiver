@@ -86,7 +86,16 @@ In a separate file (not strictly necessary), request a `#p freq` calculation at 
 level of theory.
 
 * In theory, one can calculate KIEs at non-equilibrium geometries.  See
-Singleton *JACS*  **2009**, *131*, 2397.
+Singleton *JACS*  **2009**, *131*, 2397.  Note that the method used by QUIVER to calculate
+frequencies is slightly different from that of g09, in that it doesn't project out the
+translational and rotational modes.  Instead, it just ignores modes between -50 and 50 cm<sup>-1</sup>.
+If running a grid, this could cause discontinuities as this script switches between EIE and KIE
+calculations.  (The KIE calculations require the ratio of the imaginary frequencies if one structure
+is a transition state.  This is like a classical correction for how quickly the system passes over
+the barrier.)  The most rigorous thing to do would probably be to get the frequencies from g09
+by performing frequency calculations from checkpoints and altering the isotopes with readisotopes.
+Then, one could use the Bigeleisen-Mayer equation to calculate the KIE.  However, the work by
+Singleton suggests this is unnecessary and this would be a very slow approach.
 * Tighter convergence criteria can sometimes improve accuracy by reducing the size of
 the smallest six translational/rotational frequencies.
 * To calculate an equilibrium isotope effect, replace the transition state with the second ground state.
