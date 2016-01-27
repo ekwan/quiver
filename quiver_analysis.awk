@@ -37,10 +37,11 @@ fileCount == 1 && FNR > 2 {
 }
 
 # read the reduced isotopic partition functions
-/S2/ {
+/S2\/S1/ {
     partitionCount++
     partitionFunctions[fileCount,partitionCount]=$2
-    # print fileCount, partitionCount, $2
+    #print $0
+    #print fileCount, partitionCount, $2
 }
 
 # read the transition state imaginary frequencies
