@@ -45,10 +45,15 @@ fileCount == 1 && FNR > 2 {
 }
 
 # read the transition state imaginary frequencies
-/FREQ/ && /    -/ && fileCount == 3 {
-    frequencyCount++
-    frequencies[frequencyCount]=$3
-    #print fileCount, frequencyCount, $3
+/FREQ/ && fileCount == 3 {
+    last_frequency = frequency
+    frequency = $3
+    if ( frequency < 0 && ( frequencyCount == 0 || last_frequency > frequency ) ) 
+        {
+            frequencyCount++
+            frequencies[frequencyCount] = frequency
+            #print fileCount, frequencyCount, frequency
+        }
 }
 
 # calculate the KIEs
@@ -59,7 +64,7 @@ END {
     if ( frequencyCount > 0 )
         {
             print "\nThis is a kinetic isotope effect calculation.  Tunnelling corrections have been applied,"
-            print "but may not be accurate for H/D/T KIEs."
+            print "but may not be accurate for H/D/T KIEs.\n"
             u_unsubstituted = -1.43877 * frequencies[1] / temperature
             u_unsubstituted_temp = u_unsubstituted / sin(u_unsubstituted*0.5)
             temp1 = 1 + u_unsubstituted*u_unsubstituted/24
@@ -69,6 +74,7 @@ END {
 
                     # this is the KIE with no tunnelling
                     rawKIE = S2overS1 * frequencies[1] / frequencies[i+1]
+                    printf "isotopomer %2d   RIPF1: %.4E   RIPF2: %.4E   ratio: %.4E   freq1: %4d   freq2: %4d\n", i, partitionFunctions[2,i], partitionFunctions[2,i], S2overS1, frequencies[1], frequencies[i+1]
 
                     # this is the Bell infinite parabola correction
                     u_substituted = -1.43877 * frequencies[i+1] / temperature
