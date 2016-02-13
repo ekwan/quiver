@@ -74,7 +74,7 @@ END {
 
                     # this is the KIE with no tunnelling
                     rawKIE = S2overS1 * frequencies[1] / frequencies[i+1]
-                    printf "isotopomer %2d   RIPF1: %.4E   RIPF2: %.4E   ratio: %.4E   freq1: %4d   freq2: %4d\n", i, partitionFunctions[2,i], partitionFunctions[2,i], S2overS1, frequencies[1], frequencies[i+1]
+                    printf "debug isomer %2d   RIPF1: %.4E   RIPF2: %.4E   ratio: %.4E   freq1: %4d   freq2: %4d\n", i, partitionFunctions[2,i], partitionFunctions[2,i], S2overS1, frequencies[1], frequencies[i+1]
 
                     # this is the Bell infinite parabola correction
                     u_substituted = -1.43877 * frequencies[i+1] / temperature
@@ -98,6 +98,7 @@ END {
             print "\nThis is an equilibrium isotope effect calculation.  No tunnelling corrections have been applied."
             for (i=1; i <= numberOfIsotopologues; i++)
                 {
+                    printf "debug isomer %2d   RIPF1: %.4E   RIPF2: %.4E   \n", i, partitionFunctions[2,i], partitionFunctions[2,i]
                     rawKIE = partitionFunctions[2,i]/partitionFunctions[3,i]
                     KIE[i,1]=rawKIE
                 }
