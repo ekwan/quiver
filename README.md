@@ -1,3 +1,5 @@
+# New Python-based KIE calculations can be found [here](https://github.com/ekwan/pyquiver)
+
 ## Scripts for Running QUIVER to Calculate KIEs
 
 # Introduction
